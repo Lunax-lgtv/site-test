@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Consulta CEP e IP</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .menu {
+      margin-bottom: 20px;
+    }
+
+    .menu input, .menu button {
+      padding: 10px;
+      margin: 5px 0;
+      font-size: 16px;
+    }
+
+    .resultado {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #eee;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Menu de Consulta</h1>
+  <div class="menu">
+    <h2>Consultar CEP</h2>
+    <input type="text" id="cepInput" placeholder="Digite o CEP">
+    <button onclick="consultarCEP()">Consultar CEP</button>
+
+    <h2>Consultar IP</h2>
+    <input type="text" id="ipInput" placeholder="Digite o IP">
+    <button onclick="consultarIP()">Consultar IP</button>
+  </div>
+
+  <div class="resultado" id="resultado"></div>
+
+  <script>
+    function consultarCEP() {
+      const cep = document.getElementById('cepInput').value.replace(/\D/g, '');
+      if (cep.length !== 8) {
+        alert('CEP inválido!');
+        return;
+      }
+
+      fetch(`https://viacep.com.br/ws/${cep}/json/`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.erro) {
+            document.getElementById('resultado').innerText = 'CEP não encontrado.';
+          } else {
+            document.getElementById('resultado').innerHTML = `
+              <h3>Resultado CEP:</h3>
+              <p><strong>Rua:</strong> ${data.logradouro}</p>
+              <p><strong>Bairro:</strong> ${data.bairro}</p>
+              <p><strong>Cidade:</strong> ${data.localidade}</p>
+              <p><strong>Estado:</strong> ${data.uf}</p>
+            `;
+          }
+        })
+        .catch(() => {
+          document.getElementById('resultado').innerText = 'Erro ao consultar CEP.';
+        });
+    }
+
+    function consultarIP() {
+      const ip = document.getElementById('ipInput').value;
+
+      fetch(`http://ip-api.com/json/${ip}?lang=pt-BR`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === "fail") {
+            document.getElementById('resultado').innerText = 'IP não encontrado.';
+          } else {
+            document.getElementById('resultado').innerHTML = `
+              <h3>Resultado IP:</h3>
+              <p><strong>IP:</strong> ${data.query}</p>
+              <p><strong>País:</strong> ${data.country}</p>
+              <p><strong>Região:</strong> ${data.regionName}</p>
+              <p><strong>Cidade:</strong> ${data.city}</p>
+              <p><strong>Provedor:</strong> ${data.isp}</p>
+            `;
+          }
+        })
+        .catch(() => {
+          document.getElementById('resultado').innerText = 'Erro ao consultar IP.';
+        });
+    }
+  </script>
+
+</body>
+</html>
